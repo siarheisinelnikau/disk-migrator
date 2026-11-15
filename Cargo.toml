@@ -1,0 +1,53 @@
+[package]
+name = "disk-migrator"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT"
+description = "A careful, verifiable disk-image migration wizard for Windows"
+build = "build.rs"
+
+[lib]
+name = "disk_migrator"
+
+[[bin]]
+name = "DiskMigrator"
+path = "src/main.rs"
+required-features = ["gui"]
+
+[features]
+default = ["gui"]
+gui = ["dep:egui", "dep:egui-winit", "dep:egui_software_backend", "dep:winit", "dep:softbuffer", "dep:bytemuck", "dep:rfd"]
+
+[dependencies]
+crc32fast = "=1.5.3"
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.150"
+sha2 = "=0.10.9"
+thiserror = "=2.0.18"
+fs2 = "=0.4.3"
+semver = "=1.0.28"
+ureq = { version = "=3.5.0", default-features = false, features = ["rustls", "json"] }
+egui = { version = "=0.33.3", optional = true, features = ["accesskit"] }
+egui-winit = { version = "=0.33.3", optional = true, default-features = false, features = ["accesskit", "clipboard"] }
+egui_software_backend = { version = "=0.0.2", optional = true, default-features = false, features = ["std"] }
+winit = { version = "=0.30.13", optional = true, default-features = false, features = ["rwh_06"] }
+softbuffer = { version = "=0.4.8", optional = true, default-features = false }
+bytemuck = { version = "1", optional = true }
+rfd = { version = "=0.15.4", optional = true }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "=0.61.2", features = ["Win32_Foundation", "Win32_Storage_FileSystem", "Win32_System_IO", "Win32_System_Ioctl", "Win32_System_Threading", "Win32_UI_WindowsAndMessaging"] }
+
+[build-dependencies]
+winresource = "=0.1.34"
+
+[dev-dependencies]
+tempfile = "=3.27.0"
+
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.release]
+debug = 1
+strip = "none"
