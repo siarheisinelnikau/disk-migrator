@@ -1,0 +1,12 @@
+/target/
+/dist/
+*.migration.json
+*.migration.json.tmp
+*.download
+*.migration.json.tmp.*
+*.pdb
+.env
+.env.*
+!.env.example
+/.test-output/
+*.log
