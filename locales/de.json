@@ -35,7 +35,7 @@
   "gpt_relocate": "Beide GPT-Header werden geprüft. Die Sicherungstabelle wird bei Bedarf ans neue Ende verschoben.",
   "mbr_preserve": "MBR, Startcode und Partitionspositionen bleiben erhalten.",
   "no_resize": "Verkleinern, Erweitern und Dateisystemkonvertierung sind nicht verfügbar.",
-  "no_physical": "Physische Datenträger und laufende Windows-Systeme werden in dieser Version nicht unterstützt.",
+  "no_physical": "Dieser Assistent verwendet Offline-Abbilder. Experimentelle VSS- und SSD-Befehle sind über --help verfügbar.",
   "source_preserved": "Das Quellabbild wird niemals zum Schreiben geöffnet.",
   "review_title": "Vor dem Kopieren noch einmal prüfen",
   "review_help": "Prüfen Sie den vollständigen Zielpfad. Nur in dieses Abbild wird geschrieben.",
@@ -93,6 +93,6 @@
   "reviewing": "Partitionstabellen werden gelesen…",
   "size_error": "Geben Sie eine ganze MiB-Zahl ein (1–16777216).",
   "mode_images": "Nur Offline-Abbilder · Sektoren mit 512 / 4096 Byte",
-  "support_status": "Schattenkopien, physische Schreibzugriffe und Startreparatur sind deaktiviert.",
+  "support_status": "SSD-Befehle erfordern eine genaue Bestätigung und ein Offline-Ziel. Die Startreparatur bleibt nicht verfügbar.",
   "quit_wait": "Vorgang vor dem Schließen pausieren…"
 }

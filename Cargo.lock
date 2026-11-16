@@ -757,9 +757,10 @@ dependencies = [
 
 [[package]]
 name = "disk-migrator"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bytemuck",
+ "cc",
  "crc32fast",
  "egui",
  "egui-winit",

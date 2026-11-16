@@ -24,6 +24,28 @@ pub struct Source {
     pub metadata_hash: String,
 }
 pub fn validate_path(path: &Path) -> Result<()> {
+    validate_local_file(path)?;
+    if !path
+        .extension()
+        .is_some_and(|e| e.eq_ignore_ascii_case("img") || e.eq_ignore_ascii_case("raw"))
+    {
+        return Err(invalid("Select a local .img or .raw image."));
+    }
+    Ok(())
+}
+pub fn validate_state_path(path: &Path) -> Result<()> {
+    validate_local_file(path)?;
+    if !path
+        .extension()
+        .is_some_and(|e| e.eq_ignore_ascii_case("json"))
+    {
+        return Err(invalid(
+            "Checkpoint and report paths must be local .json files.",
+        ));
+    }
+    Ok(())
+}
+fn validate_local_file(path: &Path) -> Result<()> {
     let full = path.to_string_lossy();
     // std::fs::canonicalize returns the verbatim local-drive prefix on Windows.
     // Permit that one form, but never UNC, device, volume or GLOBALROOT namespaces.
@@ -36,15 +58,11 @@ pub fn validate_path(path: &Path) -> Result<()> {
         || s.contains("../")
     {
         return Err(invalid(
-            "Use an absolute local .img or .raw file, outside device namespaces.",
+            "Use an absolute local regular-file path, outside device namespaces.",
         ));
     }
-    if !path.is_absolute()
-        || !path
-            .extension()
-            .is_some_and(|e| e.eq_ignore_ascii_case("img") || e.eq_ignore_ascii_case("raw"))
-    {
-        return Err(invalid("Select an absolute local .img or .raw file."));
+    if !path.is_absolute() {
+        return Err(invalid("Select an absolute local file path."));
     }
     #[cfg(windows)]
     {
@@ -71,8 +89,12 @@ pub fn validate_path(path: &Path) -> Result<()> {
             }
         }
     }
-    if path.exists() && !std::fs::metadata(path)?.is_file() {
-        return Err(invalid("The selected path is not a regular file."));
+    if let Ok(metadata) = std::fs::symlink_metadata(path)
+        && (!metadata.is_file() || metadata.file_type().is_symlink())
+    {
+        return Err(invalid(
+            "The selected path must be a regular file, without a symlink or device alias.",
+        ));
     }
     Ok(())
 }

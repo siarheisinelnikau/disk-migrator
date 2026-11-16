@@ -2,9 +2,11 @@
 from pathlib import Path
 import struct
 import sys
+import re
 
 root = Path(__file__).resolve().parents[1]
-path = Path(sys.argv[1]) if len(sys.argv) > 1 else root / 'dist/DiskMigrator-v0.1.0.exe'
+version = re.search(r'^version = "([^"]+)"', (root/'Cargo.toml').read_text(), re.M).group(1)
+path = Path(sys.argv[1]) if len(sys.argv) > 1 else root / f'dist/DiskMigrator-v{version}.exe'
 data = path.read_bytes()
 u16 = lambda pos: struct.unpack_from('<H', data, pos)[0]
 u32 = lambda pos: struct.unpack_from('<I', data, pos)[0]

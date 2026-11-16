@@ -35,7 +35,7 @@
   "gpt_relocate": "Se comprueban ambas cabeceras GPT. La tabla de respaldo se traslada al nuevo final si es necesario.",
   "mbr_preserve": "Se conservan el MBR, el código de arranque y la posición de las particiones.",
   "no_resize": "No están disponibles la reducción, ampliación ni conversión del sistema de archivos.",
-  "no_physical": "Los discos físicos y Windows en ejecución no están disponibles en esta versión.",
+  "no_physical": "Este asistente usa imágenes sin conexión. Los comandos experimentales VSS y SSD están disponibles mediante --help.",
   "source_preserved": "La imagen de origen nunca se abre para escritura.",
   "review_title": "Revisa todo antes de copiar",
   "review_help": "Comprueba la ruta completa del destino. Solo se escribirá en esa imagen.",
@@ -93,6 +93,6 @@
   "reviewing": "Leyendo tablas de particiones…",
   "size_error": "Introduce un número entero de MiB (1–16777216).",
   "mode_images": "Solo imágenes sin conexión · sectores de 512 / 4096 bytes",
-  "support_status": "La creación de instantáneas, escritura física y reparación de arranque están desactivadas.",
+  "support_status": "Los comandos SSD requieren confirmación exacta y un destino sin conexión. La reparación de arranque sigue sin estar disponible.",
   "quit_wait": "Pausando la operación antes de cerrar…"
 }

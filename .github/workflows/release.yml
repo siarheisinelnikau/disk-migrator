@@ -1,0 +1,57 @@
+name: Verify and publish Windows release
+on:
+  push:
+    branches: [main]
+    paths: [.github/release-request.json]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: disk-migrator-release
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.repository == 'siarheisinelnikau/disk-migrator'
+    runs-on: windows-2022
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_TARGET_DIR: target
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Prepare compiler on the GitHub runner
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.96.1 --profile minimal --component clippy,rustfmt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          rustup override set 1.96.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo fetch --locked --target x86_64-pc-windows-msvc
+          exit $LASTEXITCODE
+      - name: Check code and test generated images and fake adapters
+        shell: pwsh
+        run: |
+          cargo fmt --all -- --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo clippy --locked --offline --all-targets --target-dir target -j 2 -- -D warnings
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --locked --offline --all-targets --target-dir target -j 2
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --test scripts/publish-release.test.mjs
+          exit $LASTEXITCODE
+      - name: Build portable executable and inspect PE resources without launching
+        shell: pwsh
+        run: |
+          ./scripts/package.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/verify-package.py
+          exit $LASTEXITCODE
+      - name: Publish only after uploaded asset digests match
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/publish-release.mjs

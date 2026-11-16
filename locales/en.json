@@ -35,7 +35,7 @@
   "gpt_relocate": "Both GPT headers are checked. The backup table moves to the new end when needed.",
   "mbr_preserve": "The MBR, boot code and partition positions are preserved.",
   "no_resize": "Shrinking, partition expansion and filesystem conversion are unavailable.",
-  "no_physical": "Physical disks and live Windows sources are unavailable in this version.",
+  "no_physical": "This wizard uses offline images. Experimental VSS and physical SSD commands are available through --help.",
   "source_preserved": "Your source image is never opened for writing.",
   "review_title": "One last look before copying",
   "review_help": "Check the full destination path. This action writes only to the named image.",
@@ -93,6 +93,6 @@
   "reviewing": "Reading partition tables…",
   "size_error": "Enter a whole number of MiB (1–16777216).",
   "mode_images": "Offline images only · 512 / 4096 byte sectors",
-  "support_status": "Snapshot creation, physical writes and boot repair are disabled.",
+  "support_status": "Advanced SSD commands require exact confirmation and an offline destination. Boot repair remains unavailable.",
   "quit_wait": "Pausing the worker before closing…"
 }

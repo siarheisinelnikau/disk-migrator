@@ -35,7 +35,7 @@
   "gpt_relocate": "Les deux en-têtes GPT sont vérifiés. La table de secours est déplacée à la nouvelle fin si nécessaire.",
   "mbr_preserve": "Le MBR, le code de démarrage et la position des partitions sont conservés.",
   "no_resize": "La réduction, l’extension et la conversion des systèmes de fichiers sont indisponibles.",
-  "no_physical": "Les disques physiques et Windows en cours d’exécution sont indisponibles dans cette version.",
+  "no_physical": "Cet assistant utilise des images hors ligne. Les commandes expérimentales VSS et SSD sont accessibles avec --help.",
   "source_preserved": "L’image source n’est jamais ouverte en écriture.",
   "review_title": "Vérifiez avant de copier",
   "review_help": "Vérifiez le chemin complet de destination. Seule l’image indiquée sera écrite.",
@@ -93,6 +93,6 @@
   "reviewing": "Lecture des tables de partitions…",
   "size_error": "Saisissez un nombre entier de Mio (1–16777216).",
   "mode_images": "Images hors ligne uniquement · secteurs de 512 / 4096 octets",
-  "support_status": "Création de clichés, écriture sur disque physique et réparation du démarrage désactivées.",
+  "support_status": "Les commandes SSD exigent une confirmation exacte et une destination hors ligne. La réparation du démarrage reste indisponible.",
   "quit_wait": "Mise en pause avant la fermeture…"
 }
