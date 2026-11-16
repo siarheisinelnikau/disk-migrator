@@ -14,6 +14,22 @@ fn main() {
             return;
         }
     }
+    let arguments: Vec<_> = std::env::args().skip(1).collect();
+    match disk_migrator::cli::parse(&arguments) {
+        Ok(Some(command)) => {
+            #[cfg(windows)]
+            if let Err(error) = disk_migrator::cli::run(command) {
+                eprintln!("{error}");
+                std::process::exit(1);
+            }
+            return;
+        }
+        Err(error) => {
+            eprintln!("{error}");
+            std::process::exit(2);
+        }
+        Ok(None) => {}
+    }
     if let Err(e) = host::run() {
         eprintln!("Disk Migrator: {e}");
     }

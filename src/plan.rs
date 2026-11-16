@@ -56,56 +56,7 @@ impl Plan {
         } else {
             None
         };
-        let mut patches = Vec::new();
-        if let Some(gpt) = &source.layout.gpt {
-            let sector = source.layout.sector_size as u64;
-            let old_count = source.identity.bytes / sector;
-            let new_count = destination_bytes / sector;
-            if old_count != new_count {
-                let blocks = (gpt.entries.len() as u64).div_ceil(sector);
-                let new_entries = new_count - 1 - blocks;
-                // Remove the obsolete backup; source partitions never occupy this range.
-                patches.push(Patch {
-                    offset: gpt.backup_entries_lba * sector,
-                    bytes: vec![0; (blocks * sector) as usize],
-                });
-                patches.push(Patch {
-                    offset: (old_count - 1) * sector,
-                    bytes: vec![0; sector as usize],
-                });
-                let mut primary = gpt.primary.clone();
-                primary[32..40].copy_from_slice(&(new_count - 1).to_le_bytes());
-                primary[48..56].copy_from_slice(&(new_entries - 1).to_le_bytes());
-                layout::header_crc(&mut primary);
-                patches.push(Patch {
-                    offset: sector,
-                    bytes: primary,
-                });
-                let mut backup = gpt.backup.clone();
-                backup[24..32].copy_from_slice(&(new_count - 1).to_le_bytes());
-                backup[48..56].copy_from_slice(&(new_entries - 1).to_le_bytes());
-                backup[72..80].copy_from_slice(&new_entries.to_le_bytes());
-                layout::header_crc(&mut backup);
-                let mut entries = gpt.entries.clone();
-                entries.resize((blocks * sector) as usize, 0);
-                patches.push(Patch {
-                    offset: new_entries * sector,
-                    bytes: entries,
-                });
-                patches.push(Patch {
-                    offset: (new_count - 1) * sector,
-                    bytes: backup,
-                });
-                let mut mbr = source.layout.mbr.clone();
-                let i = (0..4).find(|i| mbr[446 + i * 16 + 4] == 0xee).unwrap();
-                mbr[446 + i * 16 + 12..446 + i * 16 + 16]
-                    .copy_from_slice(&((new_count - 1).min(u32::MAX as u64) as u32).to_le_bytes());
-                patches.push(Patch {
-                    offset: 0,
-                    bytes: mbr,
-                });
-            }
-        }
+        let patches = partition_patches(&source.layout, destination_bytes)?;
         let mut plan = Self {
             source,
             destination,
@@ -150,4 +101,64 @@ impl Plan {
     pub fn is_gpt(&self) -> bool {
         self.source.layout.scheme == Scheme::Gpt
     }
+}
+
+pub fn partition_patches(layout: &layout::Layout, destination_bytes: u64) -> Result<Vec<Patch>> {
+    layout::valid_size(destination_bytes, layout.sector_size)?;
+    if destination_bytes < layout.bytes {
+        return Err(invalid(
+            "Destination is smaller than source; shrinking is unsupported.",
+        ));
+    }
+    let mut patches = Vec::new();
+    if let Some(gpt) = &layout.gpt {
+        let sector = layout.sector_size as u64;
+        let old_count = layout.bytes / sector;
+        let new_count = destination_bytes / sector;
+        if old_count != new_count {
+            let blocks = (gpt.entries.len() as u64).div_ceil(sector);
+            let new_entries = new_count - 1 - blocks;
+            // Remove the obsolete backup; source partitions never occupy this range.
+            patches.push(Patch {
+                offset: gpt.backup_entries_lba * sector,
+                bytes: vec![0; (blocks * sector) as usize],
+            });
+            patches.push(Patch {
+                offset: (old_count - 1) * sector,
+                bytes: vec![0; sector as usize],
+            });
+            let mut primary = gpt.primary.clone();
+            primary[32..40].copy_from_slice(&(new_count - 1).to_le_bytes());
+            primary[48..56].copy_from_slice(&(new_entries - 1).to_le_bytes());
+            layout::header_crc(&mut primary);
+            patches.push(Patch {
+                offset: sector,
+                bytes: primary,
+            });
+            let mut backup = gpt.backup.clone();
+            backup[24..32].copy_from_slice(&(new_count - 1).to_le_bytes());
+            backup[48..56].copy_from_slice(&(new_entries - 1).to_le_bytes());
+            backup[72..80].copy_from_slice(&new_entries.to_le_bytes());
+            layout::header_crc(&mut backup);
+            let mut entries = gpt.entries.clone();
+            entries.resize((blocks * sector) as usize, 0);
+            patches.push(Patch {
+                offset: new_entries * sector,
+                bytes: entries,
+            });
+            patches.push(Patch {
+                offset: (new_count - 1) * sector,
+                bytes: backup,
+            });
+            let mut mbr = layout.mbr.clone();
+            let i = (0..4).find(|i| mbr[446 + i * 16 + 4] == 0xee).unwrap();
+            mbr[446 + i * 16 + 12..446 + i * 16 + 16]
+                .copy_from_slice(&((new_count - 1).min(u32::MAX as u64) as u32).to_le_bytes());
+            patches.push(Patch {
+                offset: 0,
+                bytes: mbr,
+            });
+        }
+    }
+    Ok(patches)
 }

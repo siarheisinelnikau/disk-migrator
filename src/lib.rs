@@ -1,8 +1,13 @@
+pub mod capture;
+pub mod cli;
+pub mod consistent;
 pub mod image;
 pub mod layout;
 pub mod migration;
+pub mod physical;
 pub mod plan;
 pub mod preferences;
+pub mod snapshot;
 pub mod updates;
 #[cfg(windows)]
 pub mod windows;

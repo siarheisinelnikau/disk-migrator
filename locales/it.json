@@ -35,7 +35,7 @@
   "gpt_relocate": "Si controllano entrambe le intestazioni GPT. La tabella di riserva viene spostata alla nuova fine se necessario.",
   "mbr_preserve": "Il MBR, il codice di avvio e le posizioni delle partizioni vengono mantenuti.",
   "no_resize": "Riduzione, espansione e conversione dei file system non disponibili.",
-  "no_physical": "Dischi fisici e Windows in esecuzione non disponibili in questa versione.",
+  "no_physical": "Questa procedura usa immagini offline. I comandi sperimentali VSS e SSD sono disponibili tramite --help.",
   "source_preserved": "L’immagine di origine non viene mai aperta in scrittura.",
   "review_title": "Un ultimo controllo prima di copiare",
   "review_help": "Controlla il percorso completo della destinazione. Verrà scritta solo l’immagine indicata.",
@@ -93,6 +93,6 @@
   "reviewing": "Lettura delle tabelle delle partizioni…",
   "size_error": "Inserisci un numero intero di MiB (1–16777216).",
   "mode_images": "Solo immagini offline · settori da 512 / 4096 byte",
-  "support_status": "Creazione di snapshot, scrittura fisica e riparazione dell’avvio disattivate.",
+  "support_status": "I comandi SSD richiedono conferma esatta e destinazione offline. La riparazione dell’avvio resta non disponibile.",
   "quit_wait": "Pausa dell’operazione prima della chiusura…"
 }

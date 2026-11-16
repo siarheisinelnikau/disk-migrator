@@ -1,5 +1,7 @@
-//! Windows adapters are deliberately disconnected from the image-only wizard.
-//! No write handle, mount, VSS creation, elevation, or boot repair is exposed.
+//! Windows physical adapters are reached only through explicit advanced commands.
+pub mod device;
+pub mod live;
+pub mod vss;
 use crate::{Result, invalid};
 use std::{
     fs::{File, OpenOptions},
@@ -104,7 +106,7 @@ impl PhysicalSource {
     }
     pub fn migration_availability(&self) -> Availability {
         Availability::Unavailable(
-            "Physical migrations are disabled. Capture an offline image first; a live disk read does not establish Windows writer consistency.",
+            "Direct live physical reads cannot establish Windows consistency. Use the coordinated VSS source or an offline image through an explicitly confirmed advanced command.",
         )
     }
 }
@@ -145,11 +147,12 @@ fn ioctl(
 }
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Availability {
+    Available(&'static str),
     Unavailable(&'static str),
 }
 pub fn vss_availability() -> Availability {
-    Availability::Unavailable(
-        "Writer-coordinated IVssBackupComponents snapshot acquisition is not implemented. No live-source consistency guarantee is available.",
+    Availability::Available(
+        "Writer-coordinated VSS is implemented through the Windows SDK. Explicit advanced commands require administrator privileges, basic UEFI/GPT, NTFS data/recovery, an exclusively lockable FAT32 ESP, and healthy writers. Hardware validation is pending.",
     )
 }
 pub fn boot_repair_availability() -> Availability {
@@ -190,6 +193,5 @@ mod tests {
         assert_eq!(probe_boot_sector(&b), BootSectorSignature::Unknown);
         b[510..512].copy_from_slice(&[0x55, 0xaa]);
         assert_eq!(probe_boot_sector(&b), BootSectorSignature::Ntfs);
-        assert!(matches!(vss_availability(), Availability::Unavailable(_)));
     }
 }
